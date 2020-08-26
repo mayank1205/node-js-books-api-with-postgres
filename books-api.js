@@ -55,19 +55,31 @@ app.post('/book', (req, res) => {
 
   // Output the book to the console for debugging
   console.log(book);
+  book.id = books.length+1
   books.push(book);
 
-  res.send('Book is added to the database');
+  res.send({
+    success: true,
+    message: 'Book is added to the database',
+    data: books
+  });
 });
 
 app.get(`/books/:id`, (req, res) => {
   console.log('this is id ', req.params.id)
   let book = _.find(books, (b) => b.id = req.params.id)
-  res.json(book);
+  res.json({
+    success: true,
+    data: book
+  });
 });
 
 app.get('/books', (req, res) => {
-  res.json(books);
+  res.json({
+    success: true,
+    data: books,
+    count: books.length
+  });
 });
 
 app.post('/books/:id', (req, res) => {
@@ -83,22 +95,26 @@ app.post('/books/:id', (req, res) => {
       }
   }
 
-  res.send('Book is edited');
+  res.send({
+    success: true,
+    data: newBook,
+    message: 'Book is edited'
+  });
 });
 
 app.delete('/books/:id', (req, res) => {
   // Reading id from the URL
   const id = req.params.id;
+  console.log(id)
 
   // Remove item from the books array
-  books = books.filter(i => {
-      if (i.id !== id) {
-          return true;
-      }
-      return false;
+  books = books.filter(i => i.id != id);
+  console.log(books)
+  res.send({
+    success: true,
+    message: 'Book is deleted',
+    data: books
   });
-
-  res.send('Book is deleted');
 });
 
 app.listen(port, () => console.log(`Books app listening on port ${port}!`));
