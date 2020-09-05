@@ -67,10 +67,13 @@ app.post('/book', (req, res) => {
 
 app.get(`/books/:id`, (req, res) => {
   console.log('this is id ', req.params.id)
-  let book = _.find(books, (b) => b.id = req.params.id)
+  const param = Number(req.params.id);
+  let book = _.filter(books, (b) => b.id === param)
+  console.log(req.params.id)
+  console.log(book)
   res.json({
     success: true,
-    data: book
+    data: book[0]
   });
 });
 
