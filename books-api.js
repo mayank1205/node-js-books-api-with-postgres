@@ -1,123 +1,88 @@
-const express = require('express')
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const _ = require('lodash');
-const app = express();
-const port = 3000;
-
-// Where we will keep books
-let books = [  {
-  "id": 1,
-  "author": "Chinua Achebe",
-  "country": "Nigeria",
-  "imageLink": "images/things-fall-apart.jpg",
-  "language": "English",
-  "link": "https://en.wikipedia.org/wiki/Things_Fall_Apart\n",
-  "pages": 209,
-  "title": "Things Fall Apart",
-  "year": 1958
-},
-{
-  "id": 2,
-  "author": "Hans Christian Andersen",
-  "country": "Denmark",
-  "imageLink": "images/fairy-tales.jpg",
-  "language": "Danish",
-  "link": "https://en.wikipedia.org/wiki/Fairy_Tales_Told_for_Children._First_Collection.\n",
-  "pages": 784,
-  "title": "Fairy tales",
-  "year": 1836
-},
-{
-  "id": 3,
-  "author": "Dante Alighieri",
-  "country": "Italy",
-  "imageLink": "images/the-divine-comedy.jpg",
-  "language": "Italian",
-  "link": "https://en.wikipedia.org/wiki/Divine_Comedy\n",
-  "pages": 928,
-  "title": "The Divine Comedy",
-  "year": 1315
-}];
-
-app.use(cors());
-
-// Configuring body parser middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-app.get('/', (req, res) => {
-  res.send('Hello World, from express');
-});
-
-app.post('/book', (req, res) => {
+const db = require('./db');
+const createBook = (req, res) => {
   const book = req.body;
+  db("books").insert(book).returning("*")
+    .then((resp) => {
+      console.log(resp);
+      res.send({
+        success: true,
+        message: 'Book is added to the database',
+        data: resp[0]
+      });
+    }).catch(err => {
+      console.log(err);
+      res.status(400).json({
+        message: "unable to create a new book"
+      });
+    });
+}
 
-  // Output the book to the console for debugging
-  console.log(book);
-  book.id = books.length+1
-  books.push(book);
+const getBookById = (req, res) => {
+  console.log('this is id ', req.params)
+  if (req.params.id !== 'null' && req.params.id !== 'undefined') {
+    console.log('coming in??????')
+    const param = Number(req.params.id);
+    console.log(param);
+    db.select("*").from("books")
+      .where("id", "=", param)
+      .returning("*").then(book => {
+        res.json({
+          success: true,
+          data: book[0]
+        });
+      })
+  }
+};
 
-  res.send({
-    success: true,
-    message: 'Book is added to the database',
-    data: books
+const getBooks = (req, res) => {
+  db.select("*").from("books").then(data => {
+    res.json({
+      success: true,
+      data: data,
+      count: data.length
+    });
+  }).catch(err => {
+    console.log(err);
+    res.status(400).json(err)
   });
-});
+};
 
-app.get(`/books/:id`, (req, res) => {
-  console.log('this is id ', req.params.id)
-  const param = Number(req.params.id);
-  let book = _.filter(books, (b) => b.id === param)
-  console.log(req.params.id)
-  console.log(book)
-  res.json({
-    success: true,
-    data: book[0]
-  });
-});
-
-app.get('/books', (req, res) => {
-  res.json({
-    success: true,
-    data: books,
-    count: books.length
-  });
-});
-
-app.post('/books/:id', (req, res) => {
+const updateBook = (req, res) => {
   // Reading id from the URL
-  const id = req.params.id;
+  let id = req.params.id;
   const newBook = req.body;
 
-  // Remove item from the books array
-  for (let i = 0; i < books.length; i++) {
-      let book = books[i]
-      if (book.id === id) {
-          books[i] = newBook;
-      }
-  }
+  db("books")
+    .where("id", "=", id).update(newBook)
+    .returning("*").then(() => {
+      res.send({
+        success: true,
+        data: newBook,
+        message: 'Book is edited'
+      });
+    })
+};
 
-  res.send({
-    success: true,
-    data: newBook,
-    message: 'Book is edited'
-  });
-});
-
-app.delete('/books/:id', (req, res) => {
+const deleteBook = (req, res) => {
   // Reading id from the URL
   const id = req.params.id;
   console.log(id)
 
   // Remove item from the books array
-  books = books.filter(i => i.id != id);
-  console.log(books)
-  res.send({
-    success: true,
-    message: 'Book is deleted',
-    data: books
-  });
-});
-
-app.listen(port, () => console.log(`Books app listening on port ${port}!`));
+  db("books")
+    .where("id", "=", id).delete()
+    .returning("*").then((books) => {
+      res.send({
+        success: true,
+        message: 'Book is deleted',
+        data: books
+      });
+    })
+};
+module.exports = {
+  createBook,
+  deleteBook,
+  getBookById,
+  getBooks,
+  updateBook
+}

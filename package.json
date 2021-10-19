@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon books-api.js"
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +13,9 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "lodash": "^4.17.20"
+    "knex": "^0.95.11",
+    "lodash": "^4.17.20",
+    "nodemon": "^2.0.13",
+    "pg": "^8.7.1"
   }
 }
