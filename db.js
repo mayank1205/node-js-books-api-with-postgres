@@ -5,7 +5,7 @@ module.exports = kenx({
   connection: {
     host: "127.0.0.1",
     user: "postgres",
-    password: "",
+    password: "root",
     database: "books-api"
   }
 });
