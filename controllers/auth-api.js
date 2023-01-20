@@ -29,8 +29,9 @@ const signup = (req, res) => {
         .where("email", "=", req.body.email)
         .returning("*").then( async user => {
           console.log('came in???? ', process.env.TOKEN_KEY)
+          console.log(user)
           const token = jwt.sign(
-            { user_id: user.id, email:user.email },
+            { userid: user[0].id, email:user[0].email },
             process.env.TOKEN_KEY,
             {
               expiresIn: "2h",

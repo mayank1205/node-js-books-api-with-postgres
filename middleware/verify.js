@@ -9,8 +9,8 @@ const verifyToken = (req, res, next) => {
       if (err) return res.status(401).send({ auth: false, message: 'Invalid token.' });
       
       req.email = decoded.email;
-      req.id = decoded.id;
-      req.name = decoded.name;
+      req.userid = decoded.userid;
+      console.log(req.userid, req.email)
       next();
     });
 }

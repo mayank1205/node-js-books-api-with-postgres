@@ -1,6 +1,7 @@
 const db = require('../util/db');
 const createBook = (req, res) => {
   const book = req.body;
+  book.userid = req.userid;
   db("books").insert(book).returning("*")
     .then((resp) => {
       console.log(resp);
@@ -18,24 +19,30 @@ const createBook = (req, res) => {
 }
 
 const getBookById = (req, res) => {
-  console.log('this is id ', req.params)
   if (req.params.id !== 'null' && req.params.id !== 'undefined') {
-    console.log('coming in??????')
     const param = Number(req.params.id);
-    console.log(param);
     db.select("*").from("books")
       .where("id", "=", param)
+      .andWhere("userid", "=",req.userid)
       .returning("*").then(book => {
-        res.json({
-          success: true,
-          data: book[0]
-        });
+        console.log(book)
+        if(book.length < 1){
+          res.json({
+            success: false,
+            message: "no book found"
+          });
+        } else {
+          res.json({
+            success: true,
+            data: book[0]
+          });
+        }
       })
   }
 };
 
 const getBooks = (req, res) => {
-  db.select("*").from("books").then(data => {
+  db.select("*").from("books").where("userid", "=",req.userid).orderBy('id', 'asc').then(data => {
     res.json({
       success: true,
       data: data,
