@@ -1,10 +1,12 @@
+require("dotenv").config();
 const express = require('express')
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const _ = require('lodash');
 const app = express();
 const port = 3000;
-const { createBook, getBookById, getBooks, updateBook, deleteBook } = require('./books-api');
+const bookRoutes = require('./routes/books')
+const authRoutes = require('./routes/users')
 
 
 app.use(cors());
@@ -17,16 +19,8 @@ app.get('/', (req, res) => {
   res.send('Hello World, from express');
 });
 
-app.post('/book', (req, res) => {
-  createBook(req, res);
-});
+app.use('/books', bookRoutes)
 
-app.get(`/books/:id`, (req, res) => getBookById(req, res))
-
-app.get('/books', (req, res) => getBooks(req, res))
-
-app.put('/books/:id', (req, res) => updateBook(req, res));
-
-app.delete('/books/:id', (req, res) => deleteBook(req, res));
+app.use('/users', authRoutes)
 
 app.listen(port, () => console.log(`Books app listening on port ${port}!`));

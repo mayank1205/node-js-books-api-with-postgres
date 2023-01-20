@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('../util/db');
 const createBook = (req, res) => {
   const book = req.body;
   db("books").insert(book).returning("*")
