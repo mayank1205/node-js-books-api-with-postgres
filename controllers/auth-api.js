@@ -44,6 +44,8 @@ const signup = (req, res) => {
             delete user[0].password
             // res.headers.token = token;
             res.append('Authorization', token);
+            res.append('Access-Control-Expose-Headers', '*')
+            res.append('Access-Control-Allow-Headers', '*')
             res.json({
               success: true,
               data: user[0]
